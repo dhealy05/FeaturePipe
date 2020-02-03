@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(0, './api_methods')
+from api_methods import get_tickers
+
 import json
 import requests
 import pulsar
@@ -9,6 +13,11 @@ API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 producer = client.create_producer('raw_stock_data', schema=AvroSchema(Stock))
 
+producer_dictionary = {}
+
+ws = create_connection("wss://socket.polygon.io/stocks")
+response = ws.recv()
+
 class Stock(Record):
     symbol = String()
     exchange_id = Integer()
@@ -19,43 +28,52 @@ class Stock(Record):
     time = Long()
     #conditions = List()
 
-def auth_websocket():
+def init_producers():
+    tickers = get_tickers()
+    for ticker in tickers:
+        producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
 
-    url = "https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=" + API_KEY
-    response = requests.get(url)
-    json_data = json.loads(response.text)
-    tickers = json_data['tickers']
-
-    client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
-    #producer = client.create_producer('stonks', schema=AvroSchema(Stock))
-    producer_dictionary = {}
-
-    ws = create_connection("wss://socket.polygon.io/stocks")
-    response = ws.recv()
+def init_websocket():
 
     auth = {"action":"auth","params":API_KEY}
     auth_json = json.dumps(auth)
     ws.send(auth_json)
     response = ws.recv()
 
+    subscribe = {"action":"subscribe","params":"T.MSFT"}
+    subscribe_json = json.dumps(subscribe)
+    ws.send(subscribe_json)
+    response = ws.recv()
+
+    tickers = get_tickers()
+
     for ticker in tickers:
+
         try:
-            symbol = str(ticker['ticker'])
+            symbol = str(ticker)
         except:
             continue
-        subscribe = {"action":"subscribe","params":"T."+symbol}
+
+        subscribe = {"action":"subscribe","params":"T.*"}
         subscribe_json = json.dumps(subscribe)
         ws.send(subscribe_json)
-        #producer = client.create_producer(symbol, schema=AvroSchema(Stock))
-        producer_dictionary[symbol] = client.create_producer(symbol, schema=AvroSchema(Stock))
+        result = ws.recv()
+        print(result)
+
+def produce_all():
 
     while True:
         result = ws.recv()
-        json_result = json.loads(result)
-        final = json_result[0]
-        if final['ev'] == 'T':
-            stock = Stock(symbol = final['sym'], exchange_id = final['x'], trade_id = final['i'], price = final['p'], tape = final['z'], size = final['s'], time = final['t'])
-            producer_dictionary[final['sym']].send(stock)
+        print(result)
+        #send_message(result)
 
-auth_websocket()
-#stock_snapshot()
+def send_message(result):
+    json_result = json.loads(result)
+    final = json_result[0]
+
+    if final['ev'] == 'T':
+        stock = Stock(symbol = final['sym'], exchange_id = final['x'], trade_id = final['i'], price = final['p'], tape = final['z'], size = final['s'], time = final['t'])
+        producer_dictionary[final['sym']].send(stock)
+
+init_websocket()
+produce_all()

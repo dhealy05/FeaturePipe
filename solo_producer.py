@@ -33,7 +33,7 @@ def produce():
     ws.send(auth_json)
     response = ws.recv()
 
-    subscribe = {"action":"subscribe","params":"T.MSFT"}
+    subscribe = {"action":"subscribe","params":"T.*"}
     subscribe_json = json.dumps(subscribe)
     ws.send(subscribe_json)
     response = ws.recv()
