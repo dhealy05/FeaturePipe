@@ -1,6 +1,6 @@
 import pulsar
 import time
-import sched
+import schedule
 from pulsar.schema import *
 from pyhive import presto
 

@@ -6,8 +6,8 @@ from pulsar.schema import *
 
 API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
 
-#client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
-#producer = client.create_producer('raw_stock_data', schema=AvroSchema(Stock))
+client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
+producer = client.create_producer('raw_stock_data', schema=AvroSchema(Stock))
 
 class Stock(Record):
     symbol = String()

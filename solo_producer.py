@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(0, './api_methods')
+from api_methods import get_tickers
+
 import json
 import requests
 import pulsar
@@ -19,7 +23,7 @@ class Stock(Record):
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 producer = client.create_producer('msft_test', schema=AvroSchema(Stock))
 
-def auth_websocket():
+def produce():
 
     ws = create_connection("wss://socket.polygon.io/stocks")
     response = ws.recv()
@@ -44,5 +48,4 @@ def send_message(result):
     stock = Stock(symbol = final['sym'], exchange_id = final['x'], trade_id = final['i'], price = final['p'], tape = final['z'], size = final['s'], time = final['t'])
     producer.send(stock)
 
-auth_websocket()
-#stock_snapshot()
+produce()
