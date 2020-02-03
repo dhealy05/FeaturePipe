@@ -10,7 +10,7 @@ def get_all_averages():
     average_price('msft_test', fifteen_minute)
 
 def average_price(symbol, boundary):
-    query = 'SELECT AVG(price) FROM pulsar."public/default".' + symbol + ' WHERE __publish_time__ > ' + str(boundary)
+    query = 'SELECT AVG(price) FROM pulsar."public/default".' + symbol + ' WHERE time > ' + str(boundary)
     cursor.execute(query)
     print cursor.fetchone()
     print cursor.fetchall()
