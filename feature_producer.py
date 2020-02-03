@@ -1,4 +1,6 @@
 import pulsar
+import time
+import sched
 from pulsar.schema import *
 from pyhive import presto
 
@@ -14,11 +16,11 @@ cursor = presto.connect('10.0.0.10', port=8081, username="djh").cursor()
 
 def get_all_averages():
     seconds = time.time()
-    fifteen_minute = (seconds - (60*15))*1000
+    fifteen_minute = (seconds - (60*15))
     average_price('msft_test', fifteen_minute)
 
 def average_price(symbol, boundary):
-    query = 'SELECT AVG(price) FROM pulsar."public/default".' + symbol + ' WHERE __publish_time__ > ' + str(boundary)
+    query = 'SELECT AVG(price) FROM pulsar."public/default".' + symbol + ' WHERE time > ' + str(boundary)
     cursor.execute(query)
     result = cursor.fetchone()
     #print cursor.fetchall()
@@ -28,4 +30,8 @@ def send_message(ma):
     features = Features(symbol = 'msft_test_features', ma_15 = ma)
     producer.send(features)
 
-get_all_averages()
+
+schedule.every(10).seconds.do(get_all_averages)
+#get_all_averages()
+while True:
+    schedule.run_pending()
