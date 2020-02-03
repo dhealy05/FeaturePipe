@@ -22,6 +22,8 @@ consumer = client.subscribe('msft_test',
                             subscription_name='msft_test_sub',
                             schema=AvroSchema(Stock))
 
+producer = client.create_producer('msft_test_features', schema=AvroSchema(Features))
+
 cursor = presto.connect('10.0.0.10', port=8081, username="djh").cursor()
 
 while True:
@@ -31,7 +33,9 @@ while True:
     #print("Received message: '%s'" % msg.data())
     consumer.acknowledge(msg)
 
-client.close()
+def send_message(ma, price)
+    features = Features(symbol = 'msft_test_features', price = price, ma_15 = ma)
+    producer.send(features)
 
 def get_all_averages():
     seconds = time.time()
