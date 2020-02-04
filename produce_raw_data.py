@@ -17,6 +17,7 @@ PRODUCER_PATH = "./data/producers/"
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
 producer_dictionary = {}
+producer_count = 0
 
 ws = create_connection("wss://socket.polygon.io/stocks")
 response = ws.recv()
@@ -33,13 +34,17 @@ class Stock(Record):
 
 def init_producers():
 
+    count = 0
+
     tickers = get_tickers()
 
     for ticker in tickers:
-        create_producer(ticker)
-
-def create_producer(ticker):
-    producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
+        producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
+        print(count)
+        count = count + 1
+        
+#def create_producer(ticker):
+#    producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
 
 def init_websocket():
 
