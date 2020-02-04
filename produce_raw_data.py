@@ -2,10 +2,15 @@ import sys
 sys.path.insert(0, './api_methods')
 from api_methods import get_tickers
 
+try:
+    import thread
+except ImportError:
+    import _thread as thread
+
+import websocket
 import json
 import requests
 import pulsar
-from websocket import create_connection
 from pulsar.schema import *
 import pickle
 import os.path
