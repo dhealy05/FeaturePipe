@@ -22,6 +22,7 @@ PRODUCER_PATH = "./data/producers/"
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
 producer_dictionary = {}
+consumer_dictionary = {}
 producer_count = 0
 
 class Stock(Record):
@@ -36,7 +37,8 @@ class Stock(Record):
 
 def init_producers():
 
-    print("success")
+    producer_dictionary['SPY'] = client.create_producer('SPY', schema=AvroSchema(Stock))
+    consumer_dictionary['SPY'] = client.subscribe('SPY', subscription_name='SPY' + "_sub", schema=AvroSchema(Stock))
     return
 
     count = 0
@@ -138,7 +140,7 @@ def on_open(ws):
         auth_json = json.dumps(auth)
         ws.send(auth_json)
 
-        subscribe = {"action":"subscribe","params":"T.*"}
+        subscribe = {"action":"subscribe","params":"T.SPY"}
         subscribe_json = json.dumps(subscribe)
         ws.send(subscribe_json)
 
