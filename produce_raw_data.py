@@ -31,6 +31,9 @@ class Stock(Record):
 
 def init_producers():
 
+    print("success")
+    return
+
     count = 0
 
     tickers = get_tickers()
@@ -51,25 +54,25 @@ def init_producers():
 #def create_producer(ticker):
 #    producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
 
-def init_websocket():
+#def init_websocket():
 
-    ws = create_connection("wss://socket.polygon.io/stocks")
-    response = ws.recv()
+#    ws = create_connection("wss://socket.polygon.io/stocks")
+#    response = ws.recv()
 
-    auth = {"action":"auth","params":API_KEY}
-    auth_json = json.dumps(auth)
-    ws.send(auth_json)
-    response = ws.recv()
+#    auth = {"action":"auth","params":API_KEY}
+#    auth_json = json.dumps(auth)
+#    ws.send(auth_json)
+#    response = ws.recv()
 
-    subscribe = {"action":"subscribe","params":"T.*"}
-    subscribe_json = json.dumps(subscribe)
-    ws.send(subscribe_json)
-    response = ws.recv()
+#    subscribe = {"action":"subscribe","params":"T.*"}
+#    subscribe_json = json.dumps(subscribe)
+#    ws.send(subscribe_json)
+#    response = ws.recv()
 
-    while True:
-        result = ws.recv()
+#    while True:
+#        result = ws.recv()
         #print(result)
-        send_message(result)
+#        send_message(result)
 
 #def produce_all():
 
@@ -98,7 +101,7 @@ def send_message(result):
 
         if final.get('ev', 0) == 'T':
 
-            ticker = result_json.get('sym', -1)
+            ticker = final.get('sym', -1)
 
             if ticker != -1:
 
@@ -112,9 +115,45 @@ def send_message(result):
                     stock = make_stock(final)
                     producer_dictionary[ticker].send(stock)
 
-init_producers()
-print("PRODUCED")
+def on_message(ws, message):
+    #print(message)
+    send_message(message)
+
+def on_error(ws, error):
+    print(error)
+
+def on_close(ws):
+    print("### closed ###")
+
+def on_open(ws):
+
+    def run(*args):
+
+        auth = {"action":"auth","params":API_KEY}
+        auth_json = json.dumps(auth)
+        ws.send(auth_json)
+
+        subscribe = {"action":"subscribe","params":"T.*"}
+        subscribe_json = json.dumps(subscribe)
+        ws.send(subscribe_json)
+
+    thread.start_new_thread(run, ())
+
+if __name__ == "__main__":
+
+    init_producers()
+
+    websocket.enableTrace(True)
+    ws = websocket.WebSocketApp("wss://socket.polygon.io/stocks",
+                              on_message = on_message,
+                              on_error = on_error,
+                              on_close = on_close)
+    ws.on_open = on_open
+    ws.run_forever()
+
+#init_producers()
+#print("PRODUCED")
 #producer_dictionary = get_producer_dictionary()
-init_websocket()
+#init_websocket()
 #print("SOCKETED")
 #produce_all()
