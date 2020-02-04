@@ -7,8 +7,11 @@ import requests
 import pulsar
 from websocket import create_connection
 from pulsar.schema import *
+import pickle
+import os.path
 
 API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
+PRODUCER_PATH = "./data/producers.pkl"
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
@@ -27,10 +30,22 @@ class Stock(Record):
     time = Long()
     #conditions = List()
 
+def get_producer_dictionary():
+    if os.path.isfile(PRODUCER_PATH):
+        with open(PRODUCER_PATH, 'rb') as input:
+            producer_dictionary = pickle.load(input)
+    else:
+        init_producers()
+
 def init_producers():
+
     tickers = get_tickers()
+
     for ticker in tickers:
         create_producer(ticker)
+
+    with open(PRODUCER_PATH, 'wb') as output:
+        pickle.dump(producer_dictionary, output, pickle.HIGHEST_PROTOCOL)
 
 def create_producer(ticker):
     producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
@@ -78,6 +93,6 @@ def send_message(result):
             stock = make_stock(final)
             producer.send(stock)
 
-init_producers()
+producer_dictionary = get_producer_dictionary()
 init_websocket()
 produce_all()
