@@ -11,7 +11,6 @@ from pulsar.schema import *
 API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
-producer = client.create_producer('raw_stock_data', schema=AvroSchema(Stock))
 
 producer_dictionary = {}
 
@@ -43,25 +42,11 @@ def init_websocket():
     ws.send(auth_json)
     response = ws.recv()
 
-    subscribe = {"action":"subscribe","params":"T.MSFT"}
+    subscribe = {"action":"subscribe","params":"T.*"}
     subscribe_json = json.dumps(subscribe)
     ws.send(subscribe_json)
     response = ws.recv()
-
-    tickers = get_tickers()
-
-    for ticker in tickers:
-
-        #try:
-        #    symbol = str(ticker)
-        #except:
-        #    continue
-
-        subscribe = {"action":"subscribe","params":"T.*"}
-        subscribe_json = json.dumps(subscribe)
-        ws.send(subscribe_json)
-        result = ws.recv()
-        print(result)
+    print(result)
 
 def produce_all():
 
