@@ -19,9 +19,6 @@ client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 producer_dictionary = {}
 producer_count = 0
 
-ws = create_connection("wss://socket.polygon.io/stocks")
-response = ws.recv()
-
 class Stock(Record):
     symbol = String()
     exchange_id = Integer()
@@ -56,6 +53,9 @@ def init_producers():
 
 def init_websocket():
 
+    ws = create_connection("wss://socket.polygon.io/stocks")
+    response = ws.recv()
+
     auth = {"action":"auth","params":API_KEY}
     auth_json = json.dumps(auth)
     ws.send(auth_json)
@@ -65,14 +65,18 @@ def init_websocket():
     subscribe_json = json.dumps(subscribe)
     ws.send(subscribe_json)
     response = ws.recv()
-    print(result)
-
-def produce_all():
 
     while True:
         result = ws.recv()
         #print(result)
         send_message(result)
+
+#def produce_all():
+
+#    while True:
+#        result = ws.recv()
+        #print(result)
+#        send_message(result)
 
 def make_stock(result_json):
 
