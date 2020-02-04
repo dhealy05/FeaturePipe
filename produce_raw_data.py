@@ -39,10 +39,18 @@ def init_producers():
     tickers = get_tickers()
 
     for ticker in tickers:
-        producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
+
+        try:
+            ticker = str(ticker)
+        except:
+            print("Fail")
+
+        if type(ticker) == str:
+            producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
+
         print(count)
         count = count + 1
-        
+
 #def create_producer(ticker):
 #    producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
 
