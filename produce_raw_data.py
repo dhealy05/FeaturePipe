@@ -98,12 +98,23 @@ def send_message(result):
 
         if final.get('ev', 0) == 'T':
 
-            stock = make_stock(final)
-            producer.send(stock)
+            ticker = result_json.get('sym', -1)
+
+            if ticker != -1:
+
+                try:
+                    ticker = str(ticker)
+                except:
+                    ticker = -1
+
+                if ticker != -1:
+
+                    stock = make_stock(final)
+                    producer_dictionary[ticker].send(stock)
 
 init_producers()
 print("PRODUCED")
 #producer_dictionary = get_producer_dictionary()
 init_websocket()
-print("SOCKETED")
-produce_all()
+#print("SOCKETED")
+#produce_all()
