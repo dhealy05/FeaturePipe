@@ -59,7 +59,7 @@ def make_stock(symbol):
 
 def send_message(ticker):
     print(ticker)
-    stock = make_stock(final)
+    stock = make_stock(ticker)
     producer_dictionary[ticker].send(stock)
 
 init_producers()
