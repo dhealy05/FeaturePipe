@@ -16,8 +16,6 @@ import pickle
 import os.path
 
 API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
-PRODUCER_DICT_PATH = "./data/producer_dictionary.pkl"
-PRODUCER_PATH = "./data/producers/"
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
