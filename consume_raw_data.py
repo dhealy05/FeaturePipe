@@ -34,8 +34,17 @@ def init_consumers():
 
     for ticker in tickers:
 
-        print(ticker)
-        consumer_dictionary[ticker] = client.subscribe(ticker, subscription_name=ticker + "_sub", schema=AvroSchema(Stock))
+        try:
+            ticker = str(ticker)
+        except:
+            continue
+
+        if ticker == 'nan':
+            continue
+
+        if type(ticker) == str:
+            print(ticker)
+            consumer_dictionary[ticker] = client.subscribe(ticker, subscription_name=ticker + "_sub", schema=AvroSchema(Stock))
 
         print(count)
         count = count + 1
@@ -45,6 +54,14 @@ init_consumers()
 while True:
 
     for ticker in tickers:
+
+        try:
+            ticker = str(ticker)
+        except:
+            continue
+
+        if ticker == 'nan':
+            continue
 
         msg = consumer_dictionary[ticker].receive()
         print(msg.value())

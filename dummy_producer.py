@@ -43,7 +43,16 @@ def init_producers():
 
     for ticker in tickers:
 
-        producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
+        try:
+            ticker = str(ticker)
+        except:
+            continue
+
+        if ticker == 'nan':
+            continue
+
+        if type(ticker) == str:
+            producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
 
         print(count)
         count = count + 1
@@ -59,5 +68,13 @@ init_producers()
 
 while True:
 
+    try:
+        ticker = str(ticker)
+    except:
+        continue
+
+    if ticker == 'nan':
+        continue
+        
     symbol = random.choice(tickers)
     send_message(symbol)
