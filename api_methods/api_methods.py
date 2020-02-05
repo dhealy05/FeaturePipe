@@ -23,8 +23,18 @@ def get_tickers_from_api():
     tickers = json_data['tickers']
 
     ticker_symbols = []
+
     for ticker in tickers:
-        ticker_symbols.append(ticker['ticker'])
+
+        try:
+            ticker = str(ticker['ticker'])
+        except:
+            continue
+
+        if ticker == 'nan':
+            continue
+
+        ticker_symbols.append(ticker.lower())
 
     return ticker_symbols
 

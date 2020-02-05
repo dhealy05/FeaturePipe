@@ -14,6 +14,8 @@ client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
 consumer_dictionary = {}
 
+tickers = get_tickers()
+
 class Stock(Record):
     symbol = String()
     exchange_id = Integer()
@@ -28,23 +30,22 @@ def init_consumers():
 
     count = 0
 
-    tickers = get_tickers()
+    #tickers = get_tickers()
 
     for ticker in tickers:
 
-        try:
-            ticker = str(ticker)
-        except:
-            continue
-
-        if ticker == 'nan':
-            continue
-
-        if type(ticker) == str:
-            print(ticker)
-            consumer_dictionary[ticker] = client.subscribe(ticker, subscription_name=ticker + "_sub", schema=AvroSchema(Stock))
+        print(ticker)
+        consumer_dictionary[ticker] = client.subscribe(ticker, subscription_name=ticker + "_sub", schema=AvroSchema(Stock))
 
         print(count)
         count = count + 1
 
 init_consumers()
+
+while True:
+
+    for ticker in tickers:
+
+        msg = consumer_dictionary[ticker].receive()
+        print(msg.value())
+        consumer_dictionary[ticker].acknowledge(msg)
