@@ -35,7 +35,7 @@ def init_consumers():
         try:
             ticker = str(ticker)
         except:
-            print("Fail")
+            continue
 
         if ticker == 'nan':
             continue

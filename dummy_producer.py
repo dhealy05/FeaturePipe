@@ -46,7 +46,10 @@ def init_producers():
         try:
             ticker = str(ticker)
         except:
-            print("Fail")
+            continue
+
+        if ticker == 'nan':
+            continue
 
         if type(ticker) == str:
             producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
