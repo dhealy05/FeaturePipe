@@ -61,12 +61,14 @@ def make_stock(symbol):
     return Stock(symbol = symbol, exchange_id = 1, trade_id = 1, price = 100.0, tape = 1, size = 1, time = 1000000)
 
 def send_message(ticker):
-    print(ticker)
     stock = make_stock(ticker)
     producer_dictionary[ticker].send(stock)
 
 init_producers()
 
 while True:
+
     symbol = random.choice(tickers)
-    send_message(symbol)
+
+    if symbol != 'nan':
+        send_message(symbol)
