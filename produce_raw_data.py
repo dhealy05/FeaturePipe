@@ -22,7 +22,6 @@ PRODUCER_PATH = "./data/producers/"
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
 producer_dictionary = {}
-consumer_dictionary = {}
 producer_count = 0
 
 class Stock(Record):
@@ -37,9 +36,9 @@ class Stock(Record):
 
 def init_producers():
 
-    producer_dictionary['SPY'] = client.create_producer('SPY', schema=AvroSchema(Stock))
-    consumer_dictionary['SPY'] = client.subscribe('SPY', subscription_name='SPY' + "_sub", schema=AvroSchema(Stock))
-    return
+    #producer_dictionary['SPY'] = client.create_producer('SPY', schema=AvroSchema(Stock))
+    #consumer_dictionary['SPY'] = client.subscribe('SPY', subscription_name='SPY' + "_sub", schema=AvroSchema(Stock))
+    #return
 
     count = 0
 
@@ -57,36 +56,6 @@ def init_producers():
 
         print(count)
         count = count + 1
-
-#def create_producer(ticker):
-#    producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
-
-#def init_websocket():
-
-#    ws = create_connection("wss://socket.polygon.io/stocks")
-#    response = ws.recv()
-
-#    auth = {"action":"auth","params":API_KEY}
-#    auth_json = json.dumps(auth)
-#    ws.send(auth_json)
-#    response = ws.recv()
-
-#    subscribe = {"action":"subscribe","params":"T.*"}
-#    subscribe_json = json.dumps(subscribe)
-#    ws.send(subscribe_json)
-#    response = ws.recv()
-
-#    while True:
-#        result = ws.recv()
-        #print(result)
-#        send_message(result)
-
-#def produce_all():
-
-#    while True:
-#        result = ws.recv()
-        #print(result)
-#        send_message(result)
 
 def make_stock(result_json):
 
@@ -123,7 +92,7 @@ def send_message(result):
                     producer_dictionary[ticker].send(stock)
 
 def on_message(ws, message):
-    #print(message)
+    print(message)
     send_message(message)
 
 def on_error(ws, error):

@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(0, './api_methods')
+from api_methods import get_tickers
+
 import json
 import requests
 import pulsar
@@ -5,6 +9,10 @@ from websocket import create_connection
 from pulsar.schema import *
 
 API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
+
+client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
+
+consumer_dictionary = {}
 
 class Stock(Record):
     symbol = String()
@@ -16,36 +24,23 @@ class Stock(Record):
     time = Long()
     #conditions = List()
 
-def consume_all_tickers():
+def init_consumers():
 
-    client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
+    count = 0
 
-    url = "https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=" + API_KEY
-    response = requests.get(url)
-    json_data = json.loads(response.text)
-    tickers = json_data['tickers']
-
-    consumer_dictionary = {}
+    tickers = get_tickers()
 
     for ticker in tickers:
+
         try:
-            symbol = str(ticker['ticker'])
+            ticker = str(ticker)
         except:
-            print("Bad Symbol")
-        consumer_dictionary[symbol] = client.subscribe(symbol,
-                                            subscription_name=symbol + "_sub",
-                                            schema=AvroSchema(Stock))
+            print("Fail")
 
-    #consumer = client.subscribe('schema_test',
-    #                        subscription_name='schema_test_sub',
-    #                        schema=AvroSchema(Example))
+        if type(ticker) == str:
+            consumer_dictionary[ticker] = client.subscribe(symbol, subscription_name=symbol + "_sub", schema=AvroSchema(Stock))
 
-#help(consumer)
-#while True:
-#    msg = consumer.receive()
-#    print(msg.value())
-#    print("Received message phrase={} id={} greeting={}".format(ex.phrase, ex.id, ex.greeting))
-    #print("Received message: '%s'" % msg.data())
-#    consumer.acknowledge(msg)
+        print(count)
+        count = count + 1
 
-#client.close()
+init_consumers()
