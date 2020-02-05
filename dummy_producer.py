@@ -68,7 +68,13 @@ init_producers()
 
 while True:
 
-    symbol = random.choice(tickers)
+    try:
+        ticker = str(ticker)
+    except:
+        continue
 
-    if symbol != 'nan':
-        send_message(symbol)
+    if ticker == 'nan':
+        continue
+        
+    symbol = random.choice(tickers)
+    send_message(symbol)
