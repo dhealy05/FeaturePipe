@@ -63,10 +63,16 @@ def make_stock(result_json):
     if -1 in vars:
         return Stock(symbol = "bad_data", exchange_id = 1, trade_id = 1, price = 1.0, tape = 1, size = 1, time = 1000000000)
 
-    return Stock(symbol = symbol, exchange_id = exchange_id, trade_id = trade_id, price = price, tape = tape, size = size, time = time)
+    try:
+        symbol = str(symbol)
+    except:
+        return Stock(symbol = "bad_data", exchange_id = 1, trade_id = 1, price = 1.0, tape = 1, size = 1, time = 1000000000)
+
+    return Stock(symbol = symbol.lower(), exchange_id = exchange_id, trade_id = trade_id, price = price, tape = tape, size = size, time = time)
 
 def send_message(result):
 
+    send_message("XXXXX")
     json_result = json.loads(result)
 
     if len(result) > 1:
@@ -86,7 +92,9 @@ def send_message(result):
 
                 if ticker != -1:
 
+                    ticker = ticker.lower()
                     stock = make_stock(final)
+                    print("YYYYY")
                     producer_dictionary[ticker].send(stock)
 
 def on_message(ws, message):

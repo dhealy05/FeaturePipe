@@ -38,6 +38,7 @@ def get_tickers_from_api():
 
     return ticker_symbols
 
+get_tickers()
 #def get_tickers():
 #    url = "https://api.polygon.io/v2/reference/tickers?apiKey=" + API_KEY
 #    response = requests.get(url)

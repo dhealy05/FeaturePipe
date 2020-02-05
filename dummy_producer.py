@@ -79,5 +79,5 @@ while True:
         if ticker == 'nan':
             continue
 
-        symbol = random.choice(tickers)
-        send_message(symbol)
+        #symbol = random.choice(tickers)
+        send_message(ticker)
