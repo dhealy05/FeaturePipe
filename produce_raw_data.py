@@ -19,6 +19,9 @@ API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
+tickers = get_tickers()
+final_tickers = []
+
 producer_dictionary = {}
 producer_count = 0
 
@@ -34,13 +37,9 @@ class Stock(Record):
 
 def init_producers():
 
-    #producer_dictionary['SPY'] = client.create_producer('SPY', schema=AvroSchema(Stock))
-    #consumer_dictionary['SPY'] = client.subscribe('SPY', subscription_name='SPY' + "_sub", schema=AvroSchema(Stock))
-    #return
-
     count = 0
 
-    tickers = get_tickers()
+    #tickers = get_tickers()
 
     for ticker in tickers:
 
@@ -49,8 +48,12 @@ def init_producers():
         except:
             continue
 
+        if ticker == 'nan':
+            continue
+
         if type(ticker) == str:
             producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
+            final_tickers.append(ticker)
 
         print(count)
         count = count + 1
@@ -72,7 +75,6 @@ def make_stock(result_json):
 
 def send_message(result):
 
-    send_message("XXXXX")
     json_result = json.loads(result)
 
     if len(result) > 1:
@@ -94,8 +96,9 @@ def send_message(result):
 
                     ticker = ticker.lower()
                     stock = make_stock(final)
-                    print("YYYYY")
-                    producer_dictionary[ticker].send(stock)
+
+                    if ticker in final_tickers:
+                        producer_dictionary[ticker].send(stock)
 
 def on_message(ws, message):
     print(message)
@@ -115,7 +118,7 @@ def on_open(ws):
         auth_json = json.dumps(auth)
         ws.send(auth_json)
 
-        subscribe = {"action":"subscribe","params":"T.SPY"}
+        subscribe = {"action":"subscribe","params":"T.*"}
         subscribe_json = json.dumps(subscribe)
         ws.send(subscribe_json)
 
