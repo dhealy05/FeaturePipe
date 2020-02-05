@@ -109,6 +109,7 @@ def on_error(ws, error):
 
 def on_close(ws):
     print("### closed ###")
+    boot_websocket()
 
 def on_open(ws):
 
@@ -124,9 +125,7 @@ def on_open(ws):
 
     thread.start_new_thread(run, ())
 
-if __name__ == "__main__":
-
-    init_producers()
+def boot_websocket():
 
     websocket.enableTrace(True)
     ws = websocket.WebSocketApp("wss://socket.polygon.io/stocks",
@@ -135,6 +134,11 @@ if __name__ == "__main__":
                               on_close = on_close)
     ws.on_open = on_open
     ws.run_forever()
+
+if __name__ == "__main__":
+
+    init_producers()
+    boot_websocket()
 
 #init_producers()
 #print("PRODUCED")
