@@ -102,13 +102,15 @@ def send_message(result):
                     if ticker in final_tickers:
                         producer_dictionary[ticker].send(stock)
                         producer_dictionary["all_stocks"].send(stock)
-                        
+
 def on_message(ws, message):
     print(message)
     send_message(message)
 
 def on_error(ws, error):
+    print("### error ###")
     print(error)
+    ws.close()
 
 def on_close(ws):
     print("### closed ###")
