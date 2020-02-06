@@ -28,6 +28,8 @@ class Stock(Record):
 
 def init_consumers():
 
+    consumer_dictionary["all_stocks"] = client.subscribe("all_stocks", subscription_name="all_stocks_sub", schema=AvroSchema(Stock))
+
     count = 0
 
     #tickers = get_tickers()

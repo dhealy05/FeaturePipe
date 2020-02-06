@@ -1,6 +1,5 @@
 import pulsar
 from pulsar.schema import *
-from pyhive import presto
 
 class Stock(Record):
     symbol = String()
@@ -18,9 +17,7 @@ class Features(Record):
     ma_15 = Float()
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
-consumer = client.subscribe('raw_stock_data',
-                            subscription_name='raw_stock_data_sub',
-                            schema=AvroSchema(Stock))
+consumer = client.subscribe('raw_stock_data', subscription_name='raw_stock_data_sub', schema=AvroSchema(Stock))
 
 #producer = client.create_producer('msft_test_features', schema=AvroSchema(Features))
 
@@ -32,18 +29,3 @@ while True:
     #print("Received message phrase={} id={} greeting={}".format(ex.phrase, ex.id, ex.greeting))
     #print("Received message: '%s'" % msg.data())
     consumer.acknowledge(msg)
-
-def send_message(ma, price)
-    features = Features(symbol = 'msft_test_features', price = price, ma_15 = ma)
-    producer.send(features)
-
-def get_all_averages():
-    seconds = time.time()
-    fifteen_minute = (seconds - (60*15))*1000
-    average_price('msft_test', fifteen_minute)
-
-def average_price(symbol, boundary):
-    query = 'SELECT AVG(price) FROM pulsar."public/default".' + symbol + ' WHERE __publish_time__ > ' + str(boundary)
-    cursor.execute(query)
-    print cursor.fetchone()
-    print cursor.fetchall()

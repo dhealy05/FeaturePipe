@@ -37,6 +37,8 @@ class Stock(Record):
 
 def init_producers():
 
+    producer_dictionary["all_stocks"] = client.create_producer("all_stocks", schema=AvroSchema(Stock))
+
     count = 0
 
     #tickers = get_tickers()
@@ -99,7 +101,8 @@ def send_message(result):
 
                     if ticker in final_tickers:
                         producer_dictionary[ticker].send(stock)
-
+                        producer_dictionary["all_stocks"].send(stock)
+                        
 def on_message(ws, message):
     print(message)
     send_message(message)
