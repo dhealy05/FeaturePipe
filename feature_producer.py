@@ -95,8 +95,11 @@ def run_all_queries():
 
     for results in result_queue:
         print(results[1])
+        for data in results[0]:
+            if data[1] == 'aapl':
+                print(data[0])
 
-    make_features(result_queue)
+    #make_features(result_queue)
 
 def make_features(queue):
 
@@ -116,7 +119,7 @@ def make_features(queue):
                 feature_dictionary[str(query_result[1])][feature] = str(query_result[0])
             except:
                 print("key error")
-                
+
     for symbol in feature_dictionary:
         print(feature_dictionary[symbol])
 
