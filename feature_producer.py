@@ -39,7 +39,8 @@ def get_all_queries():
     for feature in feature_set:
         action, num_minutes = feature.split("_")
         num_minutes = int(num_minutes)
-        boundary = (seconds - (60*num_minutes))
+        #boundary = (seconds - (60*num_minutes))
+        boundary = 1581094483536
         query = 'SELECT ' + action + '(price), symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
         queries.append([query, feature])
 
@@ -93,16 +94,16 @@ def run_all_queries():
         worker.join()
 
     for results in result_queue:
-        print(results[0], results[1])
+        print(results[1])
 
-    make_features(result_queue)    
+    make_features(result_queue)
 
 def make_features(queue):
 
     feature_dictionary = {}
 
     for query_result in queue[0][0]:
-        feature_dictionary[query_result[1]] = {}
+        feature_dictionary[query_result[1]] = {'symbol': query_result[1]}
     #for ticker in final_tickers:
     #    feature_dictionary[ticker] = {}
 
