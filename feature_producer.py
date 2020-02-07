@@ -34,13 +34,13 @@ feature_set = ['avg_1', 'avg_5', 'stddev_1', 'stddev_5']
 def get_all_queries():
 
     queries = []
-    seconds = time.time()
+    #seconds = time.time()
+    seconds = 1581094483536
 
     for feature in feature_set:
         action, num_minutes = feature.split("_")
         num_minutes = int(num_minutes)
-        #boundary = (seconds - (60*num_minutes))
-        boundary = 1581094483536
+        boundary = (seconds - (60*num_minutes))
         query = 'SELECT ' + action + '(price), symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
         queries.append([query, feature])
 
@@ -117,7 +117,9 @@ def make_features(queue):
     for symbol in feature_dictionary:
         print(feature_dictionary[symbol])
 
-schedule.every(15).seconds.do(run_all_queries)
+run_all_queries()
 
-while True:
-    schedule.run_pending()
+#schedule.every(30).seconds.do(run_all_queries)
+
+#while True:
+#    schedule.run_pending()
