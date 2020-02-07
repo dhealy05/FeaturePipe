@@ -40,9 +40,9 @@ def get_all_queries():
     for feature in feature_set:
         action, num_minutes = feature.split("_")
         num_minutes = int(num_minutes)
-        boundary = (seconds - (60*num_minutes))
-        query = 'SELECT ' + action + '(price), symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
-        queries.append([query, feature])
+        boundary = (seconds - (60*num_minutes)*1000)
+        query = 'SELECT ' + action + '(price) as ' + feature + ', symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
+        queries.append({"query":query, "feature":feature})
 
     return queries
 
@@ -67,7 +67,7 @@ class QueryWorker(Thread):
         except Exception as e:
             print("Unable to access database %s" % str(e))
 
-        self.result_queue.append([result, self.feature])
+        self.result_queue.append({"array":result, "feature":self.feature})
 
 def run_all_queries():
 
@@ -75,10 +75,10 @@ def run_all_queries():
     result_queue = []
 
     workers = []
-    queries = get_all_queries()
+    query_dict = get_all_queries()
 
     for query in queries:
-        worker = QueryWorker(query[0], query[1], result_queue)
+        worker = QueryWorker(query_dict['query'], query_dict['feature'], result_queue)
         workers.append(worker)
 
     for worker in workers:
@@ -93,37 +93,33 @@ def run_all_queries():
     for worker in workers:
         worker.join()
 
-    for results in result_queue:
-        print(results[1])
-        for data in results[0]:
-            if data[1] == 'aapl':
-                print(data[0])
-
-    #make_features(result_queue)
+    make_features(result_queue)
 
 def make_features(queue):
 
     feature_dictionary = {}
 
-    for query_result in queue[0][0]:
-        feature_dictionary[query_result[1]] = {'symbol': query_result[1]}
+    for feature, symbol in queue[0]['array']:
+        feature_dictionary[symbol] = {'symbol': symbol}
+
     #for ticker in final_tickers:
     #    feature_dictionary[ticker] = {}
 
     for result in queue:
 
-        feature = result[1]
+        feature = result['feature']
 
-        for query_result in result[0]:
+        for feature, symbol in result['array']:
             try:
-                feature_dictionary[str(query_result[1])][feature] = str(query_result[0])
+                feature_dictionary[symbol][feature] = str(feature)
             except:
                 print("key error")
 
     for symbol in feature_dictionary:
         print(feature_dictionary[symbol])
 
-run_all_queries()
+get_all_queries()
+#run_all_queries()
 
 #schedule.every(30).seconds.do(run_all_queries)
 
