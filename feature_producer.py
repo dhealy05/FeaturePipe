@@ -9,7 +9,6 @@ import schedule
 from pyhive import presto
 import asyncio
 
-
 #class Features(Record):
 #    symbol = String()
 #    price = Float()
@@ -29,79 +28,90 @@ producer_count = 0
 
 #feature_set = ['ma_1', 'ma_10', 'ma_60', 'ma_120', 'std_1', 'std_10', 'std_60', 'std_120', 'vol_1', 'vol_10', 'vol_60', 'vol_120']
 #feature_set = ['ma_1', 'ma_5', 'std_1', 'std_5', 'vol_1', 'vol_5']
-feature_set = ['avg_1', 'avg_5', 'stdev_1', 'stdev_5']
+feature_set = ['avg_1', 'avg_5', 'stddev_1', 'stddev_5']
 
 cursor = presto.connect('10.0.0.10', port=8081, username="djh").cursor()
 
-def init_producers():
+from threading import Thread, Lock
 
-    producer_dictionary["all_features"] = client.create_producer("all_features", schema=AvroSchema(Features))
-
-    count = 0
-
-    tickers = get_tickers()
-
-    for ticker in tickers:
-
-        try:
-            ticker = str(ticker)
-        except:
-            continue
-
-        if ticker == 'nan':
-            continue
-
-        if type(ticker) == str:
-            producer_dictionary[ticker] = client.create_producer(ticker + "_features", schema=AvroSchema(Features))
-            final_tickers.append(ticker)
-
-        print(count)
-        count = count + 1
-
-#def get_all_features():
-#    for feature in feature_set:
-#        action, num_minutes = feature.split("_")
-
-#def get_feature(action, num_minutes):
+def get_feature(action, num_minutes):
     #action == AVG or action == STDDEV
-#    seconds = time.time()
-#    boundary = (seconds - (60*num_minutes))
-#    query = 'SELECT ' + action + '(price), symbol, price FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
-#    cursor.execute(query)
-#    result = cursor.fetchone()
+    seconds = time.time()
+    boundary = (seconds - (60*num_minutes))
+    query = 'SELECT ' + action + '(price), symbol, price FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
+    cursor.execute(query)
+    result = cursor.fetchall()
+    return result
     #print cursor.fetchall()
     #send_message(result[0])
+
+def get_all_features():
+    for feature in feature_set:
+        action, num_minutes = feature.split("_")
+        global_features[feature] = get_feature(action, num_minutes)
+
+def get_all_queries():
+
+    queries = []
+    seconds = time.time()
+
+    for feature in feature_set:
+        action, num_minutes = feature.split("_")
+        boundary = (seconds - (60*num_minutes))
+        query = 'SELECT ' + action + '(price), symbol, price FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
+        queries.append(query)
+
+    return queries
 
 def send_message(ma):
     features = Features(symbol = 'msft_test_features', ma_15 = ma)
     producer.send(features)
 
-#get_all_features()
+class QueryWorker(Thread):
+    __lock = Lock()
 
-loop = asyncio.get_event_loop()
+    def __init__(self, query, result_queue):
+        Thread.__init__(self)
+        self.query = query
+        self.result_queue = result_queue
 
-def query():
+    def run(self):
 
-    async def get_feature(action, num_minutes):
-        #action == AVG or action == STDDEV
-        seconds = time.time()
-        boundary = (seconds - (60*num_minutes))
-        query = 'SELECT ' + action + '(price), symbol, price FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
-        cursor.execute(query)
-        result = cursor.fetchone()
-        print(result)
-        #print cursor.fetchall()
-        #send_message(result[0])
+        result = None
+        logging.info("Connecting to database...")
 
-    async_tasks = []
+        try:
+            cursor.execute(query)
+            result = cursor.fetchall()
+        except Exception as e:
+            logging.error("Unable to access database %s" % str(e))
 
-    for feature in feature_set:
-        action, num_minutes = feature.split("_")
-        async_tasks.append(loop.create_task(get_feature(action, num_minutes)))
+        self.result_queue.append(result)
 
-    loop.run_until_complete(asyncio.gather(*async_tasks))
+delay = 1
+result_queue = []
 
-query()
+workers = []
+queries = get_all_queries()
+
+for query in queries:
+    worker = QueryWorker(query, result_queue)
+    workers.append(worker)
+
+for worker in workers:
+    worker.start()
+
+# Wait for the job to be done
+while len(result_queue) < len(feature_set):
+    sleep(delay)
+
+job_done = True
+
+for worker in workers:
+    worker.join()
+
+print(result_queue)    
+
 #schedule.every(10).seconds.do(get_all_averages)
 
 #while True:
