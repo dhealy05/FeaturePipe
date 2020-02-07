@@ -9,9 +9,10 @@ import schedule
 from pyhive import presto
 import asyncio
 
+from threading import Thread, Lock
+
 #class Features(Record):
 #    symbol = String()
-#    price = Float()
 #    ma_1 = Float()
 #    ma_5 = Float()
 #    std_1 = Float()
@@ -30,8 +31,6 @@ producer_count = 0
 #feature_set = ['ma_1', 'ma_5', 'std_1', 'std_5', 'vol_1', 'vol_5']
 feature_set = ['avg_1', 'avg_5', 'stddev_1', 'stddev_5']
 
-from threading import Thread, Lock
-
 def get_all_queries():
 
     queries = []
@@ -42,20 +41,17 @@ def get_all_queries():
         num_minutes = int(num_minutes)
         boundary = (seconds - (60*num_minutes))
         query = 'SELECT ' + action + '(price), symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
-        queries.append(query)
+        queries.append([query, feature])
 
     return queries
-
-def send_message(ma):
-    features = Features(symbol = 'msft_test_features', ma_15 = ma)
-    producer.send(features)
 
 class QueryWorker(Thread):
     __lock = Lock()
 
-    def __init__(self, query, result_queue):
+    def __init__(self, query, feature, result_queue):
         Thread.__init__(self)
         self.query = query
+        self.feature = feature
         self.result_queue = result_queue
 
     def run(self):
@@ -65,12 +61,12 @@ class QueryWorker(Thread):
 
         try:
             cursor = presto.connect('10.0.0.10', port=8081, username="djh").cursor()
-            cursor.execute(query)
+            cursor.execute(self.query)
             result = cursor.fetchall()
         except Exception as e:
             print("Unable to access database %s" % str(e))
 
-        self.result_queue.append(result)
+        self.result_queue.append([result, self.feature])
 
 def run_all_queries():
 
@@ -81,7 +77,7 @@ def run_all_queries():
     queries = get_all_queries()
 
     for query in queries:
-        worker = QueryWorker(query, result_queue)
+        worker = QueryWorker(query[0], query[1], result_queue)
         workers.append(worker)
 
     for worker in workers:
@@ -89,7 +85,7 @@ def run_all_queries():
 
     # Wait for the job to be done
     while len(result_queue) < len(feature_set):
-        sleep(delay)
+        time.sleep(delay)
 
     job_done = True
 
@@ -97,7 +93,28 @@ def run_all_queries():
         worker.join()
 
     for results in result_queue:
-        print(results[0])
+        print(results[0], results[1])
+
+    make_features(result_queue)    
+
+def make_features(queue):
+
+    feature_dictionary = {}
+
+    for query_result in queue[0][0]:
+        feature_dictionary[query_result[1]] = {}
+    #for ticker in final_tickers:
+    #    feature_dictionary[ticker] = {}
+
+    for result in queue:
+
+        feature = result[1]
+
+        for query_result in result[0]:
+            feature_dictionary[query_result[1]][feature] = query_result[0]
+
+    for symbol in feature_dictionary:
+        print(feature_dictionary[symbol])
 
 schedule.every(15).seconds.do(run_all_queries)
 
