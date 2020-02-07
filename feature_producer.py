@@ -112,7 +112,7 @@ def make_features(queue):
         feature = result[1]
 
         for query_result in result[0]:
-            feature_dictionary[query_result[1]][feature] = query_result[0]
+            feature_dictionary[str(query_result[1])][feature] = str(query_result[0])
 
     for symbol in feature_dictionary:
         print(feature_dictionary[symbol])
