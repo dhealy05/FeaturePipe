@@ -38,10 +38,10 @@ class Stock(Record):
 def init_producers():
 
     producer_dictionary["all_stocks"] = client.create_producer("all_stocks", schema=AvroSchema(Stock))
-    return
+
     count = 0
 
-    #tickers = get_tickers()
+    tickers = get_tickers()
 
     for ticker in tickers:
 
@@ -100,7 +100,7 @@ def send_message(result):
                     stock = make_stock(final)
 
                     if ticker in final_tickers:
-                        #producer_dictionary[ticker].send(stock)
+                        producer_dictionary[ticker].send(stock)
                         producer_dictionary["all_stocks"].send(stock)
 
 def on_message(ws, message):

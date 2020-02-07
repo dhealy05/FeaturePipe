@@ -32,7 +32,7 @@ def init_consumers():
 
     count = 0
 
-    #tickers = get_tickers()
+    tickers = get_tickers()
 
     for ticker in tickers:
 
@@ -53,18 +53,18 @@ def init_consumers():
 
 init_consumers()
 
-while True:
+#while True:
 
-    for ticker in tickers:
+#    for ticker in tickers:
 
-        try:
-            ticker = str(ticker)
-        except:
-            continue
+#        try:
+#            ticker = str(ticker)
+#        except:
+#            continue
 
-        if ticker == 'nan':
-            continue
+#        if ticker == 'nan':
+#            continue
 
-        msg = consumer_dictionary[ticker].receive()
-        print(msg.value())
-        consumer_dictionary[ticker].acknowledge(msg)
+#        msg = consumer_dictionary[ticker].receive()
+#        print(msg.value())
+#        consumer_dictionary[ticker].acknowledge(msg)
