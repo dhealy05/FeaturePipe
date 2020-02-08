@@ -8,10 +8,10 @@ def init_producers(tickers, features = False):
 
     producer_dictionary, final_tickers = {}, []
 
-    default_topic = 'all_stocks', default_schema = AvroSchema(Stock), default_suffix = ""
+    default_topic, default_schema, default_suffix = 'all_stocks', AvroSchema(Stock), ""
 
     if features:
-        default_topic = 'all_features', default_schema = AvroSchema(Features), default_suffix = "_features"
+        default_topic, default_schema, default_suffix = 'all_features', AvroSchema(Features), "_features"
 
     producer_dictionary[default_topic] = client.create_producer(default_topic, schema=default_schema)
 

@@ -9,10 +9,10 @@ def init_consumers(features=False):
 
     tickers, consumer_dictionary = get_tickers(), {}
 
-    default_topic = 'all_stocks', default_schema = AvroSchema(Stock), default_suffix = ""
+    default_topic, default_schema, default_suffix = 'all_stocks', AvroSchema(Stock), ""
 
     if features:
-        default_topic = 'all_features', default_schema = AvroSchema(Features), default_suffix = "_features"
+        default_topic, default_schema, default_suffix = 'all_features', AvroSchema(Features), "_features"
 
     consumer_dictionary[default_topic] = client.subscribe(default_topic, subscription_name=default_topic + "_sub", schema=AvroSchema(default_schema))
 
