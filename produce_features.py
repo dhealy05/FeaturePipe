@@ -112,8 +112,8 @@ def make_features(queue):
 
 def make_feature_object(dict):
 
-    symbol, avg_1, avg_5, stddev_1, stddev_5 = dict.get('symbol', 'bad_data'), dict.get('avg_1', 0), dict.get('avg_5', 0), dict.get('stddev_1', 0), dict.get('stddev_5', 0)
-    feature_object = Features(symbol, avg_1, avg_5, stddev_1, stddev_5)
+    symbol, avg_1, avg_5, stddev_1, stddev_5 = dict.get('symbol', -1), dict.get('avg_1', 0), dict.get('avg_5', 0), dict.get('stddev_1', 0), dict.get('stddev_5', 0)
+    feature_object = Features(symbol = symbol, avg_1 = avg_1, avg_5 = avg_5, stddev_1 = stddev_1, stddev_5 = stddev_5)
     return feature_object
 
 #producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
