@@ -115,11 +115,13 @@ def make_feature_object(dict):
     symbol, avg_1, avg_5, stddev_1, stddev_5 = dict.get('symbol', 'bad_symbol'), dict.get('avg_1', 0.0), dict.get('avg_5', 0.0), dict.get('stddev_1', 0.0), dict.get('stddev_5', 0.0)
 
     variables = [symbol, avg_1, avg_5, stddev_1, stddev_5]
-    for var in variables:
-        if None == var:
-            var = 0.0
 
-    feature_object = Features(symbol = symbol, avg_1 = avg_1, avg_5 = avg_5, stddev_1 = stddev_1, stddev_5 = stddev_5)
+    for i in range(0, len(variables)):
+        if None == variables[i] or 'None' == variables[i]:
+            variables[i] = 0.0
+
+    feature_object = Features(symbol = variables[0], avg_1 = variables[1], avg_5 = variables[2], stddev_1 = variables[3], stddev_5 = variables[4])
+
     return feature_object
 
 #producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
