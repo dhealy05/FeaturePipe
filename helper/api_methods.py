@@ -4,7 +4,7 @@ import pandas as pd
 import os.path
 
 TICKER_PATH = './data/tickers.csv'
-API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
+API_KEY = os.getenv('API_KEY')
 
 def get_tickers():
     if os.path.isfile(TICKER_PATH):
@@ -38,9 +38,4 @@ def get_tickers_from_api():
 
     return ticker_symbols
 
-get_tickers()
-#def get_tickers():
-#    url = "https://api.polygon.io/v2/reference/tickers?apiKey=" + API_KEY
-#    response = requests.get(url)
-#    json_data = json.loads(response.text)
-#    print(json_data)
+#get_tickers())

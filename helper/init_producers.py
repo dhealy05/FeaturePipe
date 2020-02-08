@@ -1,0 +1,37 @@
+import pulsar
+from pulsar.schema import *
+from schemas import Stock, Features
+
+client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
+
+def init_producers(tickers, features = False):
+
+    producer_dictionary, final_tickers = {}, []
+
+    default_topic = 'all_stocks', default_schema = AvroSchema(Stock), default_suffix = ""
+
+    if features:
+        default_topic = 'all_features', default_schema = AvroSchema(Features), default_suffix = "_features"
+
+    producer_dictionary[default_topic] = client.create_producer(default_topic, schema=default_schema)
+
+    count = 0
+
+    for ticker in tickers:
+
+        try:
+            ticker = str(ticker)
+        except:
+            continue
+
+        if ticker == 'nan':
+            continue
+
+        if type(ticker) == str:
+            producer_dictionary[ticker] = client.create_producer(ticker + default_suffix, schema=default_schema)
+            final_tickers.append(ticker)
+
+        print(count)
+        count = count + 1
+
+        return producer_dictionary, final_tickers

@@ -1,31 +1,20 @@
 import sys
-sys.path.insert(0, './api_methods')
+sys.path.insert(0, './helper')
 from api_methods import get_tickers
+from init_producers import init_producers
+from schemas import Features
 
-#import pulsar
+import pulsar
+from pulsar.schema import *
+
 import time
 import schedule
-#from pulsar.schema import *
 from pyhive import presto
 import asyncio
 
 from threading import Thread, Lock
 
-#class Features(Record):
-#    symbol = String()
-#    ma_1 = Float()
-#    ma_5 = Float()
-#    std_1 = Float()
-#    std_5 = Float()
-
-#client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
-#producer = client.create_producer("all_features", schema=AvroSchema(Features))
-
-tickers = get_tickers()
-final_tickers = []
-
-producer_dictionary = {}
-producer_count = 0
+producer_dictionary, final_tickers = {}, []
 
 #feature_set = ['ma_1', 'ma_10', 'ma_60', 'ma_120', 'std_1', 'std_10', 'std_60', 'std_120', 'vol_1', 'vol_10', 'vol_60', 'vol_120']
 #feature_set = ['ma_1', 'ma_5', 'std_1', 'std_5', 'vol_1', 'vol_5']
@@ -35,12 +24,13 @@ def get_all_queries():
 
     queries = []
     #seconds = time.time()
-    seconds = 1581094483536
+    miliseconds = 1581094483536
 
     for feature in feature_set:
         action, num_minutes = feature.split("_")
         num_minutes = int(num_minutes)
-        boundary = (seconds - (60*num_minutes)*1000)
+        #boundary = (seconds - (60*num_minutes))*1000
+        boundary = (miliseconds - (60*num_minutes)*1000)
         query = 'SELECT ' + action + '(price) as ' + feature + ', symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
         queries.append({"query":query, "feature":feature})
 
@@ -75,9 +65,9 @@ def run_all_queries():
     result_queue = []
 
     workers = []
-    query_dict = get_all_queries()
+    queries = get_all_queries()
 
-    for query in queries:
+    for query_dict in queries:
         worker = QueryWorker(query_dict['query'], query_dict['feature'], result_queue)
         workers.append(worker)
 
@@ -107,19 +97,23 @@ def make_features(queue):
 
     for result in queue:
 
-        feature = result['feature']
-
         for feature, symbol in result['array']:
             try:
-                feature_dictionary[symbol][feature] = str(feature)
+                feature_dictionary[symbol][result['feature']] = str(feature)
             except:
                 print("key error")
 
     for symbol in feature_dictionary:
-        print(feature_dictionary[symbol])
+        #print(feature_dictionary[symbol])
+        feature_object = make_feature_object(feature_dictionary[symbol])
+        producer_dictionary[symbol].send(feature_object)
+        producer_dictionary["all_features"].send(feature_object)
 
-get_all_queries()
-#run_all_queries()
+def make_feature_object(dict):
+    feature_object = Features(symbol = dict['symbol'], ma_1 = dict['ma_1'], ma_5 = dict['ma_5'], std_1 = dict['std_1'], std_5 = dict['std_5'])
+
+producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
+run_all_queries()
 
 #schedule.every(30).seconds.do(run_all_queries)
 

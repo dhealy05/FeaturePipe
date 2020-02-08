@@ -1,6 +1,8 @@
 import sys
-sys.path.insert(0, './api_methods')
+sys.path.insert(0, './helper')
 from api_methods import get_tickers
+from init_producers import init_producers
+from schemas import Stock
 
 try:
     import thread
@@ -9,56 +11,16 @@ except ImportError:
 
 import websocket
 import json
-import requests
+import os
+from dotenv import load_dotenv
+
 import pulsar
 from pulsar.schema import *
-import pickle
-import os.path
 
-API_KEY = "6deAryjhAoa53eNJ5hMZSQb8BOKp64kpuHmYfa"
+API_KEY = os.getenv('API_KEY')
 
-client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
+producer_dictionary, final_tickers = {}, []
 
-tickers = get_tickers()
-final_tickers = []
-
-producer_dictionary = {}
-producer_count = 0
-
-class Stock(Record):
-    symbol = String()
-    exchange_id = Integer()
-    trade_id = Integer()
-    price = Float()
-    size = Integer()
-    tape = Integer()
-    time = Long()
-    #conditions = List()
-
-def init_producers():
-
-    producer_dictionary["all_stocks"] = client.create_producer("all_stocks", schema=AvroSchema(Stock))
-
-    count = 0
-
-    tickers = get_tickers()
-
-    for ticker in tickers:
-
-        try:
-            ticker = str(ticker)
-        except:
-            continue
-
-        if ticker == 'nan':
-            continue
-
-        if type(ticker) == str:
-            producer_dictionary[ticker] = client.create_producer(ticker, schema=AvroSchema(Stock))
-            final_tickers.append(ticker)
-
-        print(count)
-        count = count + 1
 
 def make_stock(result_json):
 
@@ -133,21 +95,11 @@ def on_open(ws):
 def boot_websocket():
 
     websocket.enableTrace(True)
-    ws = websocket.WebSocketApp("wss://socket.polygon.io/stocks",
-                              on_message = on_message,
-                              on_error = on_error,
-                              on_close = on_close)
+    ws = websocket.WebSocketApp("wss://socket.polygon.io/stocks", on_message = on_message, on_error = on_error, on_close = on_close)
     ws.on_open = on_open
     ws.run_forever()
 
 if __name__ == "__main__":
 
-    init_producers()
+    producer_dictionary, final_tickers = init_producers(get_tickers())
     boot_websocket()
-
-#init_producers()
-#print("PRODUCED")
-#producer_dictionary = get_producer_dictionary()
-#init_websocket()
-#print("SOCKETED")
-#produce_all()
