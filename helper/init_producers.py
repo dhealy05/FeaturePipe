@@ -34,4 +34,4 @@ def init_producers(tickers, features = False):
         print(count)
         count = count + 1
 
-        return producer_dictionary, final_tickers
+    return producer_dictionary, final_tickers

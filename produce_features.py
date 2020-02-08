@@ -110,7 +110,7 @@ def make_features(queue):
         producer_dictionary["all_features"].send(feature_object)
 
 def make_feature_object(dict):
-    feature_object = Features(symbol = dict['symbol'], ma_1 = dict['ma_1'], ma_5 = dict['ma_5'], std_1 = dict['std_1'], std_5 = dict['std_5'])
+    feature_object = Features(symbol = dict['symbol'], avg_1 = dict['avg_1'], avg_5 = dict['avg_5'], stddev_1 = dict['stddev_1'], stddev_5 = dict['stddev_5'])
 
 producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
 run_all_queries()

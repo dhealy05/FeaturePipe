@@ -11,7 +11,7 @@ class Stock(Record):
 
 class Features(Record):
     symbol = String()
-    ma_1 = Float()
-    ma_5 = Float()
-    std_1 = Float()
-    std_5 = Float()
+    avg_1 = Float()
+    avg_5 = Float()
+    stddev_1 = Float()
+    stddev_5 = Float()
