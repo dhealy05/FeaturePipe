@@ -106,13 +106,17 @@ def make_features(queue):
     for symbol in feature_dictionary:
         #print(feature_dictionary[symbol])
         feature_object = make_feature_object(feature_dictionary[symbol])
-        producer_dictionary[symbol].send(feature_object)
-        producer_dictionary["all_features"].send(feature_object)
+        print(feature_object)
+        #producer_dictionary[symbol].send(feature_object)
+        #producer_dictionary["all_features"].send(feature_object)
 
 def make_feature_object(dict):
-    feature_object = Features(symbol = dict['symbol'], avg_1 = dict['avg_1'], avg_5 = dict['avg_5'], stddev_1 = dict['stddev_1'], stddev_5 = dict['stddev_5'])
 
-producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
+    symbol, avg_1, avg_5, stddev_1, stddev_5 = dict.get('symbol', 'bad_data'), dict.get('avg_1', 0), dict.get('avg_5', 0), dict.get('stddev_1', 0), dict.get('stddev_5', 0)
+    feature_object = Features(symbol, avg_1, avg_5, stddev_1, stddev_5)
+    return feature_object
+
+#producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
 run_all_queries()
 
 #schedule.every(30).seconds.do(run_all_queries)
