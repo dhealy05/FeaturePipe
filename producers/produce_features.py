@@ -9,6 +9,7 @@ from pulsar.schema import *
 
 import time
 import schedule
+
 from pyhive import presto
 import asyncio
 
@@ -106,9 +107,8 @@ def make_features(queue):
     for symbol in feature_dictionary:
         #print(feature_dictionary[symbol])
         feature_object = make_feature_object(feature_dictionary[symbol])
-        print(feature_object)
-        #producer_dictionary[symbol].send(feature_object)
-        #producer_dictionary["all_features"].send(feature_object)
+        producer_dictionary[symbol].send(feature_object)
+        producer_dictionary["all_features"].send(feature_object)
 
 def make_feature_object(dict):
 
@@ -124,10 +124,10 @@ def make_feature_object(dict):
 
     return feature_object
 
-#producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
-run_all_queries()
+producer_dictionary, final_tickers = init_producers(get_tickers(), features = True)
+#run_all_queries()
 
-#schedule.every(30).seconds.do(run_all_queries)
+schedule.every(30).seconds.do(run_all_queries)
 
-#while True:
-#    schedule.run_pending()
+while True:
+    schedule.run_pending()
