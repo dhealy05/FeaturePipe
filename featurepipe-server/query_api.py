@@ -2,16 +2,20 @@ import pulsar
 from pulsar.schema import *
 from pyhive import presto
 from flask import Flask, request, jsonify
+import json
 
 app = Flask(__name__)
 
 @app.route('/query', methods=['POST'])
 
-def query(query):
-    request.form.get('query')
+def query():
+    query_string = request.form.get('query')
     cursor = presto.connect('10.0.0.10', port=8081, username="djh").cursor()
-    cursor.execute(self.query)
+    cursor.execute(query_string)
     result = cursor.fetchall()
-    return result
+    response = json.dumps(result)
+    print(response)
+    return response
 
-app.run()
+app.run(host="0.0.0.0", port=80)
+#app.run()

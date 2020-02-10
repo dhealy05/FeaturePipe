@@ -1,27 +1,34 @@
-import pulsar
-from pulsar.schema import *
-from pyhive import presto
+import requests
+import json
 
-class Features(Record):
-    symbol = String()
-    avg_1 = Float()
-    avg_5 = Float()
-    stddev_1 = Float()
-    stddev_5 = Float()
+import pandas as pd
+import numpy as np
 
-#client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
-client = pulsar.Client('pulsar://34.220.60.121:6650,34.222.114.52:6650,54.190.168.35:6650')
+def get_features_as_df(symbol, start_date = None, end_date = None):
+    #query_string = 'select * from pulsar."public/default".tsla_features where time > start_date and time < end_date'
+    query_string = 'select * from pulsar."public/default".' + symbol.lower() #+ '_features'
 
-def subscribe(symbol):
-    symbol = symbol.lower()
-    consumer = client.subscribe(symbol+'_features', subscription_name='_features_sub', schema=AvroSchema(Features))
-    #consumer = client.subscribe(symbol+'_features', schema=AvroSchema(Features))
-    return consumer
+    if None != start_date:
+        start_date = convert_date_to_milliseconds(start_date)
+        query_string = query_string + 'where time > ' + start_date
 
-def query(symbol, query):
-    cursor = presto.connect('54.188.179.210', port=8081, username="featurepipe-client").cursor()
-    cursor.execute(self.query)
-    result = cursor.fetchall()
-    return result
+    if None != start_date and None != end_date:
+        end_date = convert_date_to_milliseconds(end_date)
+        query_string = query_string + 'and time < ' + end_date
 
-consumer = subscribe('msft')
+    json_data = send_request(query_string)
+
+    columns = ['symbol', 'avg_1', 'avg_5', 'stddev_1', 'stddev_5', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    df = pd.DataFrame(json_data, columns = columns)
+
+    return df
+
+def convert_date_to_milliseconds(date):
+    return date.timestamp() * 1000
+
+def send_request(query):
+    response = requests.post("http://52.12.4.174:80/query", data = {'query': query})
+    json_data = json.loads(response.text)
+    return json_data
+
+get_features_as_df('tsla')
