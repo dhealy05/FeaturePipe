@@ -9,6 +9,9 @@ To install, simply insert this directory into your project root and import clien
 
 * `get_features` Args: symbol, start_date, end_date. Returns: a Pandas DataFrame of
 the features for the specified date.
+
+# Roadmap
+
 * `get_labels` Args: a price time series. Returns: a corresponding array of labels.
 * `regress_against`  Args: a DF of features and a labeled series. Returns: the regression results.
 * `train`  Args: a DF of features and a labeled series. Returns: a trained regression.
