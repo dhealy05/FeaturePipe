@@ -26,7 +26,8 @@ An API serves as the middleman for client requests to the Pulsar cluster for sec
 
 This repository is organized in the following way:
 
-* `setup` Scripts and directions describing the structure of the cluster, configuration information, and simple scripts to make installation easier.
 * `producers` produce_raw_data.py handles the conversion of websocket data into Pulsar-friendly data schemas and streams it. produce_features.py runs simultaneous Presto queries
 on the raw data to convert it into useful metrics. Also included are class schemas and helpers.
 * `featurepipe-client`  The client tools, including subscription, queries, labeling, and simulation.
+* `featurepipe-server`  The API through which clients can communicate with the Pulsar cluster.
+* `cluster_setup` Description of the cluster setup, scripts to make installation easier.
