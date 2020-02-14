@@ -4,7 +4,7 @@ from schemas import Stock, Features
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
-def init_producers(tickers, features = False):
+def init_producers(tickers, features = False, default_topic_only = False):
 
     producer_dictionary, final_tickers = {}, []
 
@@ -28,8 +28,11 @@ def init_producers(tickers, features = False):
             continue
 
         if type(ticker) == str:
-            producer_dictionary[ticker] = client.create_producer(ticker + default_suffix, schema=default_schema)
+
             final_tickers.append(ticker)
+
+            if not default_topic_only:
+                producer_dictionary[ticker] = client.create_producer(ticker + default_suffix, schema=default_schema)
 
         print(count)
         count = count + 1

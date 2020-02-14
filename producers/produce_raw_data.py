@@ -102,5 +102,5 @@ def boot_websocket():
 
 if __name__ == "__main__":
 
-    producer_dictionary, final_tickers = init_producers(get_tickers())
+    producer_dictionary, final_tickers = init_producers(get_tickers(), features = False, default_topic_only = True)
     boot_websocket()

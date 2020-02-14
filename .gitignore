@@ -1,3 +1,5 @@
 /data
 Pipfile
 Pipfile.lock
+.gitignore
+.DS_Store
