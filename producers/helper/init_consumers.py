@@ -5,7 +5,7 @@ from api_methods import get_tickers
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
-def init_consumers(features=False):
+def init_consumers(features = False, default_topic_only = False):
 
     tickers, consumer_dictionary = get_tickers(), {}
 
@@ -16,6 +16,9 @@ def init_consumers(features=False):
 
     consumer_dictionary[default_topic] = client.subscribe(default_topic, subscription_name=default_topic + "_sub", schema=AvroSchema(default_schema))
 
+    if default_topic_only:
+        return
+        
     count = 0
 
     for ticker in tickers:
