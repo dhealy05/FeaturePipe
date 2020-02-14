@@ -17,9 +17,11 @@ from threading import Thread, Lock
 
 producer_dictionary, final_tickers = {}, []
 
-#feature_set = ['ma_1', 'ma_10', 'ma_60', 'ma_120', 'std_1', 'std_10', 'std_60', 'std_120', 'vol_1', 'vol_10', 'vol_60', 'vol_120']
-#feature_set = ['ma_1', 'ma_5', 'std_1', 'std_5', 'vol_1', 'vol_5']
-feature_set = ['avg_1', 'avg_5', 'stddev_1', 'stddev_5']
+#blank_feature = Features()
+feature_set = [str(key) for key in Features()]
+print(feature_set)
+return
+#feature_set = ['avg_1', 'avg_5', 'stddev_1', 'stddev_5']
 
 def get_all_queries():
 
