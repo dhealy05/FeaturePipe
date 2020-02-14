@@ -2,7 +2,7 @@ import sys
 sys.path.insert(0, './helper')
 from api_methods import get_tickers
 from init_producers import init_producers
-from schemas import Feature
+from schemas import Features
 
 import pulsar
 from pulsar.schema import *
@@ -129,7 +129,7 @@ def make_feature_object(dict):
             variables[i] = 0.0
 
     #feature_object = Features(symbol = variables[0], avg_1 = variables[1], avg_5 = variables[2], stddev_1 = variables[3], stddev_5 = variables[4])
-    features_object = Feature(symbol = variables[0], avg_1 = variables[1], avg_5 = variables[2], avg_10 = variables[3], avg_15 = variables[4], avg_30 = variables[5], avg_60 = variables[6], avg_120 = variables[7], avg_240 = variables[8], avg_480 = variables[9], avg_960 = variables[10], avg_1440 = variables[11], stddev_1 = variables[12], stddev_5 = variables[13], stddev_10 = variables[14], stddev_15 = variables[15], stddev_30 = variables[16], stddev_60 = variables[17], stddev_120 = variables[18], stddev_240 = variables[19], stddev_480 = variables[20], stddev_960 = variables[21], stddev_1440 = variables[22], vol_1 = variables[23], vol_5 = variables[24], vol_10 = variables[25], vol_15 = variables[26], vol_30 = variables[27], vol_60 = variables[28], vol_120 = variables[29], vol_240 = variables[30], vol_480 = variables[31], vol_960 = variables[32], vol_1440 = variables[33])
+    features_object = Features(symbol = variables[0], avg_1 = variables[1], avg_5 = variables[2], avg_10 = variables[3], avg_15 = variables[4], avg_30 = variables[5], avg_60 = variables[6], avg_120 = variables[7], avg_240 = variables[8], avg_480 = variables[9], avg_960 = variables[10], avg_1440 = variables[11], stddev_1 = variables[12], stddev_5 = variables[13], stddev_10 = variables[14], stddev_15 = variables[15], stddev_30 = variables[16], stddev_60 = variables[17], stddev_120 = variables[18], stddev_240 = variables[19], stddev_480 = variables[20], stddev_960 = variables[21], stddev_1440 = variables[22], vol_1 = variables[23], vol_5 = variables[24], vol_10 = variables[25], vol_15 = variables[26], vol_30 = variables[27], vol_60 = variables[28], vol_120 = variables[29], vol_240 = variables[30], vol_480 = variables[31], vol_960 = variables[32], vol_1440 = variables[33])
 
     return feature_object
 

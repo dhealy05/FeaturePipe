@@ -1,6 +1,6 @@
 import pulsar
 from pulsar.schema import *
-from schemas import Stock, Feature
+from schemas import Stock, Features
 from api_methods import get_tickers
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
@@ -12,7 +12,7 @@ def init_consumers(features = False, default_topic_only = False):
     default_topic, default_schema, default_suffix = 'all_stocks', AvroSchema(Stock), ""
 
     if features:
-        default_topic, default_schema, default_suffix = 'all_features', AvroSchema(Feature), "_features"
+        default_topic, default_schema, default_suffix = 'all_features', AvroSchema(Features), "_features"
 
     consumer_dictionary[default_topic] = client.subscribe(default_topic, subscription_name=default_topic + "_sub", schema=AvroSchema(default_schema))
 
