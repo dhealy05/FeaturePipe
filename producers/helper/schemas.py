@@ -9,7 +9,7 @@ class Stock(Record):
     tape = Integer()
     time = Long()
 
-class Features(Record):
+class Feature(Record):
     symbol = String()
     avg_1 = Float()
     avg_5 = Float()
