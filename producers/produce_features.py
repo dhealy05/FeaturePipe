@@ -17,11 +17,8 @@ from threading import Thread, Lock
 
 producer_dictionary, final_tickers = {}, []
 
-#blank_feature = Features()
-feature_set = [str(key) for key in Features()]
-print(feature_set)
-return
 #feature_set = ['avg_1', 'avg_5', 'stddev_1', 'stddev_5']
+feature_set = ['avg_1', 'avg_5', 'avg_10', 'avg_15', 'avg_30', 'avg_60', 'avg_120', 'avg_240', 'avg_480', 'avg_960', 'avg_1440', 'stddev_1', 'stddev_5', 'stddev_10', 'stddev_15', 'stddev_30', 'stddev_60', 'stddev_120', 'stddev_240', 'stddev_480', 'stddev_960', 'stddev_1440', 'vol_1', 'vol_5', 'vol_10', 'vol_15', 'vol_30', 'vol_60', 'vol_120', 'vol_240', 'vol_480', 'vol_960', 'vol_1440']
 
 def get_all_queries():
 
@@ -114,15 +111,17 @@ def make_features(queue):
 
 def make_feature_object(dict):
 
-    symbol, avg_1, avg_5, stddev_1, stddev_5 = dict.get('symbol', 'bad_symbol'), dict.get('avg_1', 0.0), dict.get('avg_5', 0.0), dict.get('stddev_1', 0.0), dict.get('stddev_5', 0.0)
+    variables = [dict.get('symbol', 'bad_symbol')]
 
-    variables = [symbol, avg_1, avg_5, stddev_1, stddev_5]
+    for feature in feature_set:
+        variables.append(dict.get(feature), 0.0)
 
     for i in range(0, len(variables)):
         if None == variables[i] or 'None' == variables[i]:
             variables[i] = 0.0
 
-    feature_object = Features(symbol = variables[0], avg_1 = variables[1], avg_5 = variables[2], stddev_1 = variables[3], stddev_5 = variables[4])
+    #feature_object = Features(symbol = variables[0], avg_1 = variables[1], avg_5 = variables[2], stddev_1 = variables[3], stddev_5 = variables[4])
+    features_object = Features(symbol = variables[0], avg_1 = variables[1], avg_5 = variables[2], avg_10 = variables[3], avg_15 = variables[4], avg_30 = variables[5], avg_60 = variables[6], avg_120 = variables[7], avg_240 = variables[8], avg_480 = variables[9], avg_960 = variables[10], avg_1440 = variables[11], stddev_1 = variables[12], stddev_5 = variables[13], stddev_10 = variables[14], stddev_15 = variables[15], stddev_30 = variables[16], stddev_60 = variables[17], stddev_120 = variables[18], stddev_240 = variables[19], stddev_480 = variables[20], stddev_960 = variables[21], stddev_1440 = variables[22], vol_1 = variables[23], vol_5 = variables[24], vol_10 = variables[25], vol_15 = variables[26], vol_30 = variables[27], vol_60 = variables[28], vol_120 = variables[29], vol_240 = variables[30], vol_480 = variables[31], vol_960 = variables[32], vol_1440 = variables[33])
 
     return feature_object
 
