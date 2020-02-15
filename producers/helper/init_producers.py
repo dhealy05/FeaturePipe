@@ -1,6 +1,6 @@
 import pulsar
 from pulsar.schema import *
-from schemas import Stock, Features
+from schemas import Stock, Feature
 
 client = pulsar.Client('pulsar://10.0.0.7:6650,10.0.0.8:6650,10.0.0.9:6650')
 
@@ -11,7 +11,7 @@ def init_producers(tickers, features = False, default_topic_only = False):
     default_topic, default_schema, default_suffix = 'all_stocks', AvroSchema(Stock), ""
 
     if features:
-        default_topic, default_schema, default_suffix = 'all_features', AvroSchema(Features), "_features"
+        default_topic, default_schema, default_suffix = 'all_features', AvroSchema(Feature), "_features"
 
     producer_dictionary[default_topic] = client.create_producer(default_topic, schema=default_schema)
 

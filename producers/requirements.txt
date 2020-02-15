@@ -2,4 +2,6 @@ pulsar-client
 pyhive
 flask
 websocket-client
-dotenv
+python-dotenv
+pandas
+schedule
