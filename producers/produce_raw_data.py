@@ -14,6 +14,7 @@ import json
 
 import os
 from dotenv import load_dotenv
+load_dotenv()
 
 import pulsar
 from pulsar.schema import *
@@ -21,7 +22,6 @@ from pulsar.schema import *
 API_KEY = os.getenv('API_KEY')
 
 producer_dictionary, final_tickers = {}, []
-
 
 def make_stock(result_json):
 

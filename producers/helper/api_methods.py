@@ -4,6 +4,7 @@ import pandas as pd
 
 import os
 from dotenv import load_dotenv
+load_dotenv()
 
 TICKER_PATH = './data/tickers.csv'
 API_KEY = os.getenv('API_KEY')
