@@ -23,7 +23,7 @@ feature_set = ['avg_1', 'avg_5', 'avg_10', 'avg_15', 'avg_30', 'avg_60', 'avg_12
 def get_all_queries():
 
     queries = []
-    seconds = time.time()
+    #seconds = time.time()
     #miliseconds = 1581094483536
 
     for feature in feature_set:
@@ -31,14 +31,16 @@ def get_all_queries():
         action, num_minutes = feature.split("_")
         num_minutes = int(num_minutes)
 
-        boundary = (seconds - (60*num_minutes))*1000
+        #boundary = (seconds - (60*num_minutes))*1000
         #boundary = (miliseconds - (60*num_minutes)*1000)
+        limit = 200*num_minutes
 
         final_action = action + '(price)'
 
         if action == 'vol':
             final_action = 'sum(size*price)'
 
+        #query = 'SELECT ' + final_action + ' as ' + feature + ', symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
         query = 'SELECT ' + final_action + ' as ' + feature + ', symbol FROM pulsar."public/default".all_stocks WHERE time > ' + str(boundary) + ' GROUP BY symbol'
         queries.append({"query":query, "feature":feature})
 
@@ -94,6 +96,9 @@ def run_all_queries():
     make_features(result_queue)
 
 def make_features(queue):
+
+    if None == queue or len(queue) == 0 or None == queue[0] or len(queue[0]) == 0:
+        return
 
     feature_dictionary = {}
 

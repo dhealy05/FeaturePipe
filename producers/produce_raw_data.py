@@ -20,6 +20,7 @@ import pulsar
 from pulsar.schema import *
 
 API_KEY = os.getenv('API_KEY')
+DEFAULT_TOPIC_ONLY = True
 
 producer_dictionary, final_tickers = {}, []
 
@@ -62,9 +63,12 @@ def send_message(result):
                     ticker = ticker.lower()
                     stock = make_stock(final)
 
-                    if ticker in final_tickers:
-                        producer_dictionary[ticker].send(stock)
+                    if DEFAULT_TOPIC_ONLY:
                         producer_dictionary["all_stocks"].send(stock)
+                    else:
+                        if ticker in final_tickers:
+                            producer_dictionary[ticker].send(stock)
+                            producer_dictionary["all_stocks"].send(stock)
 
 def on_message(ws, message):
     print(message)
@@ -102,5 +106,5 @@ def boot_websocket():
 
 if __name__ == "__main__":
 
-    producer_dictionary, final_tickers = init_producers(get_tickers(), features = False, default_topic_only = True)
+    producer_dictionary, final_tickers = init_producers(get_tickers(), features = False, default_topic_only = DEFAULT_TOPIC_ONLY)
     boot_websocket()
