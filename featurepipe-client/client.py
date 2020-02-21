@@ -5,17 +5,26 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+import datetime as datetime
+
+def get_date(date_and_time):
+    date, time = date_and_time.split(" ")
+    month, day, year = map(int, date.split("/"))
+    hour, minute = map(int, time.split(":"))
+    time = datetime.datetime(year, month, day, hour, minute)
+    return str(time)
+
 def get_features_as_df(symbol, start_date = None, end_date = None):
     #query_string = 'select * from pulsar."public/default".tsla_features where time > start_date and time < end_date'
     query_string = 'select * from pulsar."public/default".all_features where symbol = ' + "'" + symbol.lower() + "'"
 
     if None != start_date:
-        start_date = convert_date_to_milliseconds(start_date)
-        query_string = query_string + 'and time > ' + start_date
+        start_date = get_date(start_date)
+        query_string = query_string + 'and __publish_time__ > timestamp ' + "'" + start_date + "'"
 
     if None != start_date and None != end_date:
-        end_date = convert_date_to_milliseconds(end_date)
-        query_string = query_string + 'and time < ' + end_date
+        end_date = get_date(end_date)
+        query_string = query_string + 'and __publish_time__ < timestamp ' + "'" + end_date + "'"
 
     json_data = send_request(query_string)
 
@@ -28,7 +37,7 @@ def get_features_as_df(symbol, start_date = None, end_date = None):
 
     df = pd.DataFrame(json_data, columns = columns)
     #df = df.sort_values(by=['__publish_time__'])
-    df = df.head(25)
+    #df = df.head(25)
 
     for col in columns:
         indexes = df[ df[col] == 0.0 ].index
@@ -36,18 +45,17 @@ def get_features_as_df(symbol, start_date = None, end_date = None):
 
     df = df.drop(sys, axis=1)
 
-    for dev in devs:
-        plt.plot(df[dev])
+    #for dev in devs:
+        #plt.plot(df[dev])
 
+    plt.plot(df['avg_120'])
     plt.show()
     #return df
-
-def convert_date_to_milliseconds(date):
-    return date.timestamp() * 1000
 
 def send_request(query):
     response = requests.post("http://52.12.4.174:80/query", data = {'query': query})
     json_data = json.loads(response.text)
     return json_data
 
-get_features_as_df('aapl')
+#get_date("2/20/2020", "23:53")
+get_features_as_df('aapl', "2/20/2020 16:20", "2/20/2020 23:53")
